@@ -26,17 +26,25 @@ import drain
 
 CLEAR_LINE = '\r\033[K'
 
+def monitor(port):
+    for count in drain.monitor(port):
+        sys.stdout.write(CLEAR_LINE + '%d connections remaining...' % count)
+        sys.stdout.flush()
+
+    print()
+
 if __name__ == '__main__':
     args = docopt(__doc__, version='0.0.1')
 
     if args['monitor']:
-        for count in drain.monitor(args['<port>'][0]):
-            sys.stdout.write(CLEAR_LINE + '%d connections remaining...' % count)
-            sys.stdout.flush()
+        monitor(args['<port>'][0])
 
     if args['start']:
         for port in args['<port>']:
+            print('Draining port %s' % port)
             drain.start(port)
+            monitor(port)
+
 
     if args['stop']:
         for port in args['<port>']:
