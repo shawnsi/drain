@@ -3,6 +3,8 @@
 import re
 from subprocess import check_call, check_output, CalledProcessError, Popen
 
+from conntrack import monitor
+
 iptables_comment = 'DRAIN'
 
 
@@ -15,13 +17,6 @@ def iptables_rule(action, port):
 def iptables_running():
     p = Popen(['lsmod | grep -q ^ip_tables'], shell=True).wait()
     return (p == 0)
-
-
-def monitor(port):
-    try:
-        p = Popen('watch -n1 "netstat -anp | grep ESTABLISHED | grep :%s"' % port, shell=True).wait()
-    except KeyboardInterrupt:
-        pass
 
 
 def running():

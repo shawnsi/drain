@@ -19,16 +19,20 @@ Commands:
 
 """
 from __future__ import print_function
+import sys
 
 from docopt import docopt
 import drain
 
+CLEAR_LINE = '\r\033[K'
 
 if __name__ == '__main__':
     args = docopt(__doc__, version='0.0.1')
 
     if args['monitor']:
-        drain.monitor(args['<port>'][0])
+        for count in drain.monitor(args['<port>'][0]):
+            sys.stdout.write(CLEAR_LINE + '%d connections remaining...' % count)
+            sys.stdout.flush()
 
     if args['start']:
         for port in args['<port>']:
