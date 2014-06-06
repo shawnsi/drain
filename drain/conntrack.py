@@ -15,12 +15,12 @@ def established(port):
     ifaces = interfaces.all()
 
     for conn in open('/proc/net/nf_conntrack'):
-        m = re.search('ESTABLISHED src=([0-9\.]+) dst=([0-9\.]+) sport=([0-9]+) dport=([0-9]+)', conn)
+        m = re.search('ESTABLISHED src=[0-9\.]+ dst=([0-9\.]+) sport=[0-9]+ dport=%s' % port, conn)
 
         if m:
-            saddr, daddr, sport, dport = m.groups()
+            daddr = m.groups(0)
 
-            if daddr in ifaces and dport == port:
+            if daddr in ifaces:
                 count += 1
 
     return count
