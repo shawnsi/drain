@@ -1,9 +1,10 @@
 #!/usr/bin/env python
 
 import re
+import time
 from subprocess import check_call, check_output, CalledProcessError, Popen
 
-from conntrack import monitor
+import psutil
 
 iptables_comment = 'DRAIN'
 
@@ -18,6 +19,20 @@ def iptables_running():
     p = Popen(['lsmod | grep -q ^ip_tables'], shell=True).wait()
     return (p == 0)
 
+
+def established(port):
+    return filter(
+        lambda c: c.laddr[1] == int(port) and c.status != 'LISTEN',
+        psutil.net_connections(),
+    )
+
+def monitor(port):
+    draining = True
+
+    while draining:
+        draining = len(established(port))
+        yield draining
+        time.sleep(1)
 
 def running():
     try:
