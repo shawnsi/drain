@@ -50,8 +50,8 @@ def monitor(port, excludes=None):
 
 def running():
     try:
-        rules = check_output('iptables -L INPUT -n | tail -n +3 | grep -F "/* DRAIN */"', shell=True)
-        return re.findall('dpt:(\d+)', rules)
+        rules = check_output('iptables -L | grep -E "Chain DRAIN_[0-9]+"', shell=True)
+        return re.findall('DRAIN_(\d+)', rules)
     except CalledProcessError:
         return []
 
