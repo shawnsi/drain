@@ -3,10 +3,10 @@
 """TCP Drain.
 
 Usage:
-  atg [options] monitor <port>
-  atg [options] start <port>...
-  atg [options] stop <port>...
-  atg [options] status
+  drain [options] monitor <port>
+  drain [options] start <port>...
+  drain [options] stop <port>...
+  drain [options] status
 
 Options:
   -h --help     Show this screen
