@@ -1,18 +1,21 @@
 #!/usr/bin/env python
 
 import re
+import socket
 import time
 from subprocess import check_call, check_output, CalledProcessError, Popen
 
 import psutil
 
-iptables_comment = 'DRAIN'
+CHAIN_PREFIX = 'DRAIN'
 
 
-def iptables_rule(action, port):
-    rule = '%s INPUT -m state --state NEW -j REJECT -p tcp --dport %s \
-            -m comment --comment %s' % (action, port, iptables_comment)
-    check_call('iptables %s' % rule, shell=True)
+def iptables(rule):
+    return check_call('iptables %s' % rule, shell=True)
+
+
+def iptables_chain(port):
+    return '%s_%s' % (CHAIN_PREFIX, port)
 
 
 def iptables_running():
@@ -26,13 +29,24 @@ def established(port):
         psutil.net_connections(),
     )
 
-def monitor(port):
+
+def monitor(port, excludes=None):
     draining = True
 
+    excludes = map(
+        socket.gethostbyname,
+        excludes
+    )
+
     while draining:
-        draining = len(established(port))
+        connections = filter(
+            lambda c: c.raddr[0] not in excludes,
+            established(port)
+        )
+        draining = len(connections)
         yield draining
         time.sleep(1)
+
 
 def running():
     try:
@@ -42,11 +56,28 @@ def running():
         return []
 
 
-def start(port):
-    iptables_rule('-A', port)
+def start(port, excludes=None):
+    # Create the chain
+    chain = iptables_chain(port)
+    iptables('-N %s' % chain)
+
+    # Add source exclusions via RETURN action
+    for exclude in excludes or []:
+        iptables('-A %s -s %s -j RETURN' % (chain, exclude))
+
+    # Add TCP drain
+    rule = '-A %s -m state --state NEW -j REJECT -p tcp --dport %s' % (chain, port)
+    iptables(rule)
+
+    # Add jump to INPUT chain
+    iptables('-A INPUT -j %s' % chain)
 
 
 def stop(port):
-    iptables_rule('-D', port)
+    # Drop the chain
+    chain = iptables_chain(port)
+    iptables('-D INPUT -j %s' % chain)
+    iptables('-F %s' % chain)
+    iptables('-X %s' % chain)
 
 # vim: tabstop=4 expandtab shiftwidth=4 softtabstop=4

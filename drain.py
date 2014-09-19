@@ -4,13 +4,14 @@
 
 Usage:
   drain [options] monitor <port>
-  drain [options] start <port>...
+  drain [options] start [--exclude=<host>...] <port>...
   drain [options] stop <port>...
   drain [options] status
 
 Options:
-  -h --help     Show this screen
-  -d --debug    Print debug information
+  -e --exclude=<host>  Exclude a hostname or ip from the drain
+  -h --help            Show this screen
+  -d --debug           Print debug information
 
 Commands:
   start       Stop new TCP connections and drain existing
@@ -26,8 +27,8 @@ import drain
 
 CLEAR_LINE = '\r\033[K'
 
-def monitor(port):
-    for count in drain.monitor(port):
+def monitor(port, excludes):
+    for count in drain.monitor(port, excludes):
         sys.stdout.write(CLEAR_LINE + '%d connections remaining...' % count)
         sys.stdout.flush()
 
@@ -42,8 +43,8 @@ if __name__ == '__main__':
     if args['start']:
         for port in args['<port>']:
             print('Draining port %s' % port)
-            drain.start(port)
-            monitor(port)
+            drain.start(port, excludes=args['--exclude'])
+            monitor(port, excludes=args['--exclude'])
 
 
     if args['stop']:
