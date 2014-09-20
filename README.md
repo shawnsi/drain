@@ -1,13 +1,20 @@
-drain
+Drain
 =====
 
 TCP Connection Drainer
 
 This tool uses iptables to stop new connections on given TCP ports.
 
-quickstart
-----------
+Install
+-------
 
 ```bash
-$ sudo python2 drain.py -h
+$ go get github.com/shawnsi/drain
+```
+
+Usage
+-----
+
+```bash
+$ sudo drain -h
 ```
