@@ -37,7 +37,7 @@ func Command(arg ...string) *exec.Cmd {
 		log.Print(strings.Join(command, " "))
 	}
 
-	return exec.Command("iptables", arg...)
+	return exec.Command("/sbin/iptables", arg...)
 }
 
 func Drains(fetcher iptablesFetcherInterface) (map[string][]net.IP, error) {
