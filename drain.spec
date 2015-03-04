@@ -1,5 +1,5 @@
 Name:           drain
-Version:        0.0.2
+Version:        0.0.3
 Release:        1%{?dist}
 Summary:        TCP Drain
 
@@ -29,6 +29,9 @@ rm -fr $RPM_BUILD_ROOT/usr/{pkg,src}
 /usr/bin/drain
 
 %changelog
+* Wed Mar 04 2014 Shawn Siefkas <shawn@siefk.as> - 0.0.3-1
+- Adding debug logging
+
 * Wed Sep 24 2014 Shawn Siefkas <shawn@siefk.as> - 0.0.2-1
 - Fixing iptables path for sudo support
 
