@@ -103,23 +103,25 @@ func Established(ports []string) []Connection {
 
 	for _, connection := range LocalConnections() {
 		for _, port := range ports {
-			if connection.DestinationPort == port && connection.State == "ESTABLISHED" {
-				excludes := drains[port]
-				excluded := false
+			if connection.DestinationPort == port {
+				if connection.State == "ESTABLISHED" || connection.State == "TIME_WAIT" {
+					excludes := drains[port]
+					excluded := false
 
-				if len(excludes) > 0 {
-					for _, IP := range excludes {
-						if IP.Equal(connection.Source) {
-							excluded = true
+					if len(excludes) > 0 {
+						for _, IP := range excludes {
+							if IP.Equal(connection.Source) {
+								excluded = true
+							}
 						}
 					}
-				}
 
-				if excluded == false {
-					connections = append(connections, connection)
+					if excluded == false {
+						connections = append(connections, connection)
 
-					if os.Getenv("DEBUG") == "1" {
-						log.Printf("Found established connection: %+v\n", connection)
+						if os.Getenv("DEBUG") == "1" {
+							log.Printf("Found established connection: %+v\n", connection)
+						}
 					}
 				}
 			}
@@ -135,7 +137,7 @@ func LocalConnections() []Connection {
 		if LocalIP(netFetcher{}, connection.Destination) {
 			connections = append(connections, connection)
 
-			if os.Getenv("DEBUG") == "1" {
+			if os.Getenv("DEBUG") == "2" {
 				log.Printf("Found local connection: %+v\n", connection)
 			}
 		}
