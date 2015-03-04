@@ -111,7 +111,7 @@ Commands:
 		log.Fatal("You must be root to run drain")
 	}
 
-	arguments, _ := docopt.Parse(usage, nil, true, "Drain 0.0.1", false)
+	arguments, _ := docopt.Parse(usage, nil, true, "Drain 0.0.2", false)
 
 	if arguments["--debug"].(bool) {
 		os.Setenv("DEBUG", "1")
