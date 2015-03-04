@@ -55,3 +55,6 @@ docs/_build/
 # RPM stuff
 *.rpm
 *.tar.gz
+
+# Binary
+drain
