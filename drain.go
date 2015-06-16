@@ -8,11 +8,14 @@ import (
 	"log"
 	"os"
 	"os/user"
+	"strconv"
 	"time"
 )
 
-func Monitor(ports []string) {
-	for connections := conntrack.Established(ports); len(connections) > 0; {
+func Monitor(ports []string, timeout string) {
+	timeoutInt, _ := strconv.Atoi(timeout)
+	for connections, elapsed := conntrack.Established(ports), 0; len(connections) > 0 && elapsed < timeoutInt; elapsed++ {
+
 		fmt.Printf("%d connections remaining on ports %s...\n", len(connections), ports)
 		time.Sleep(1 * time.Second)
 		connections = conntrack.Established(ports)
@@ -88,16 +91,17 @@ func main() {
 	usage := `TCP Drain.
 
 Usage:
-  drain [options] monitor <port>
-  drain [options] start [--exclude=<host>...] <port>...
+  drain [options] monitor <port> [--timeout=<seconds>]
+  drain [options] start [--exclude=<host>... --timeout=<seconds>] <port>...
   drain [options] stop <port>...
   drain [options] status
 
 Options:
-  -e --exclude=<host>  Exclude a hostname or ip from the drain
-  -h --help            Show this screen
-  -d --debug           Print debug information
-  -v --version	       show version
+  -e --exclude=<host>     Exclude a hostname or ip from the drain
+  -t --timeout=<seconds>  Set timeout for graceful completion of existing connections [default: 120].
+  -h --help               Show this screen
+  -d --debug              Print debug information
+  -v --version            Show version
 
 Commands:
   monitor     Monitor connection counts
@@ -119,17 +123,19 @@ Commands:
 
 	if arguments["monitor"].(bool) {
 		ports := arguments["<port>"].([]string)
-		Monitor(ports)
+		timeout := arguments["--timeout"].(string)
+		Monitor(ports, timeout)
 	}
 
 	if arguments["start"].(bool) {
 		ports := arguments["<port>"].([]string)
 		excludes := arguments["--exclude"].([]string)
+		timeout := arguments["--timeout"].(string)
 
 		if err := Start(ports, excludes); err != nil {
 			fmt.Print(err)
 		} else {
-			Monitor(ports)
+			Monitor(ports, timeout)
 		}
 	}
 
