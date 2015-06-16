@@ -12,9 +12,14 @@ import (
 	"time"
 )
 
+func Chain(port string) string {
+	return fmt.Sprintf("DRAIN_%s", port)
+}
+
 func Monitor(ports []string, timeout string) {
 	timeoutInt, _ := strconv.Atoi(timeout)
-	for connections, elapsed := conntrack.Established(ports), 0; len(connections) > 0 && elapsed < timeoutInt; elapsed++ {
+	connections := conntrack.Established(ports)
+	for elapsed := 0; len(connections) > 0 && (timeoutInt < 0 || elapsed < timeoutInt); elapsed++ {
 
 		fmt.Printf("%d connections remaining on ports %s...\n", len(connections), ports)
 		time.Sleep(1 * time.Second)
@@ -22,9 +27,26 @@ func Monitor(ports []string, timeout string) {
 	}
 }
 
+func Kill(ports []string) error {
+	for _, port := range ports {
+		chain := Chain(port)
+
+		// Append REJECT for all TCP connections on the port
+		if out, err := iptables.Command(
+			"-A", chain,
+			"-j", "REJECT",
+			"-p", "tcp",
+			"--dport", port).CombinedOutput(); err != nil {
+			return fmt.Errorf("Failed to add TCP REJECT for port %s!\n%s", port, out)
+		}
+	}
+
+	return nil
+}
+
 func Start(ports []string, excludes []string) error {
 	for _, port := range ports {
-		chain := fmt.Sprintf("DRAIN_%s", port)
+		chain := Chain(port)
 
 		// Create DRAIN chain
 		if out, err := iptables.Command("-N", chain).CombinedOutput(); err != nil {
@@ -45,7 +67,7 @@ func Start(ports []string, excludes []string) error {
 			"-j", "REJECT",
 			"-p", "tcp",
 			"--dport", port).CombinedOutput(); err != nil {
-			return fmt.Errorf("Failed to add TCP REJECT for port %s!\n%s", port, out)
+			return fmt.Errorf("Failed to add TCP REJECT for NEW connections on port %s!\n%s", port, out)
 		}
 
 		// Jump to DRAIN chain in INPUT chain
@@ -92,13 +114,14 @@ func main() {
 
 Usage:
   drain [options] monitor <port> [--timeout=<seconds>]
-  drain [options] start [--exclude=<host>... --timeout=<seconds>] <port>...
+  drain [options] start [--exclude=<host>... --kill=<seconds>] <port>...
   drain [options] stop <port>...
   drain [options] status
 
 Options:
   -e --exclude=<host>     Exclude a hostname or ip from the drain
-  -t --timeout=<seconds>  Set timeout for graceful completion of existing connections [default: 120].
+  -t --timeout=<seconds>  If positive, set timeout for monitoring connections [default: 120].
+  -k --kill=<seconds>			Remaining connections rejected after this time elapsed [default: 120].
   -h --help               Show this screen
   -d --debug              Print debug information
   -v --version            Show version
@@ -115,7 +138,7 @@ Commands:
 		log.Fatal("You must be root to run drain")
 	}
 
-	arguments, _ := docopt.Parse(usage, nil, true, "Drain 0.0.4", false)
+	arguments, _ := docopt.Parse(usage, nil, true, "Drain 0.0.5", false)
 
 	if arguments["--debug"].(bool) {
 		os.Setenv("DEBUG", "1")
@@ -130,12 +153,13 @@ Commands:
 	if arguments["start"].(bool) {
 		ports := arguments["<port>"].([]string)
 		excludes := arguments["--exclude"].([]string)
-		timeout := arguments["--timeout"].(string)
+		kill := arguments["--kill"].(string)
 
 		if err := Start(ports, excludes); err != nil {
 			fmt.Print(err)
 		} else {
-			Monitor(ports, timeout)
+			Monitor(ports, kill)
+			Kill(ports)
 		}
 	}
 

@@ -1,5 +1,5 @@
 Name:           drain
-Version:        0.0.4
+Version:        0.0.5
 Release:        1%{?dist}
 Summary:        TCP Drain
 
@@ -29,6 +29,9 @@ rm -fr $RPM_BUILD_ROOT/usr/{pkg,src}
 /usr/bin/drain
 
 %changelog
+* Wed Jun 16 2015 Shawn Siefkas <shawn@siefk.as> - 0.0.5-1
+- Adding kill to start
+
 * Wed Jun 16 2015 Shawn Siefkas <shawn@siefk.as> - 0.0.4-1
 - Adding timeout to monitor
 
