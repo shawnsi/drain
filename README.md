@@ -18,3 +18,10 @@ Usage
 ```bash
 $ sudo drain -h
 ```
+
+How it Works
+------------
+
+This is the flow of `drain start` internals.
+
+![drain start](https://raw.github.com/shawnsi/drain/develop/dot/flow.png)

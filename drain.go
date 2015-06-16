@@ -27,7 +27,7 @@ func Monitor(ports []string, timeout string) {
 	}
 }
 
-func Kill(ports []string) error {
+func Reject(ports []string) error {
 	for _, port := range ports {
 		chain := Chain(port)
 
@@ -114,14 +114,14 @@ func main() {
 
 Usage:
   drain [options] monitor <port> [--timeout=<seconds>]
-  drain [options] start [--exclude=<host>... --kill=<seconds>] <port>...
+  drain [options] start [--exclude=<host>... --reject=<seconds>] <port>...
   drain [options] stop <port>...
   drain [options] status
 
 Options:
   -e --exclude=<host>     Exclude a hostname or ip from the drain
   -t --timeout=<seconds>  If positive, set timeout for monitoring connections [default: 120].
-  -k --kill=<seconds>			Remaining connections rejected after this time elapsed [default: 120].
+  -r --reject=<seconds>   Remaining connections rejected after this time elapsed [default: 120].
   -h --help               Show this screen
   -d --debug              Print debug information
   -v --version            Show version
@@ -138,7 +138,7 @@ Commands:
 		log.Fatal("You must be root to run drain")
 	}
 
-	arguments, _ := docopt.Parse(usage, nil, true, "Drain 0.0.5", false)
+	arguments, _ := docopt.Parse(usage, nil, true, "Drain 0.0.6", false)
 
 	if arguments["--debug"].(bool) {
 		os.Setenv("DEBUG", "1")
@@ -153,13 +153,13 @@ Commands:
 	if arguments["start"].(bool) {
 		ports := arguments["<port>"].([]string)
 		excludes := arguments["--exclude"].([]string)
-		kill := arguments["--kill"].(string)
+		reject := arguments["--reject"].(string)
 
 		if err := Start(ports, excludes); err != nil {
 			fmt.Print(err)
 		} else {
-			Monitor(ports, kill)
-			Kill(ports)
+			Monitor(ports, reject)
+			Reject(ports)
 		}
 	}
 
