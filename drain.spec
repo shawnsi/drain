@@ -29,7 +29,10 @@ rm -fr $RPM_BUILD_ROOT/usr/{pkg,src}
 /usr/bin/drain
 
 %changelog
-* Wed Mar 04 2014 Shawn Siefkas <shawn@siefk.as> - 0.0.3-1
+* Wed Jun 16 2015 Shawn Siefkas <shawn@siefk.as> - 0.0.4-1
+- Adding timeout to monitor
+
+* Wed Mar 04 2015 Shawn Siefkas <shawn@siefk.as> - 0.0.3-1
 - Adding debug logging
 
 * Wed Sep 24 2014 Shawn Siefkas <shawn@siefk.as> - 0.0.2-1
