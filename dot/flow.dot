@@ -1,0 +1,25 @@
+digraph {
+  start [label="Drain start"]
+  chain_add [label="Insert DRAIN chain"]
+  exclude_if [label="Excludes provided?", shape="diamond"]
+  exclude_append [label="Append excludes to DRAIN chain"]
+  reject_new [label="Append TCP reject for NEW connections"]
+  chain_jump [label="Jump to DRAIN chain from INPUT chain"]
+  connections [label="Connections remaining?", shape="diamond"]
+  reject [label="Append TCP reject for all connections"]
+  timeout [label="Timeout exceeded?"]
+  wait [label="Wait 1 second"]
+
+  start -> chain_add
+  chain_add -> exclude_if
+  exclude_if -> exclude_append [label="yes"]
+  exclude_if -> reject_new [label="no"]
+  exclude_append -> reject_new
+  reject_new -> chain_jump
+  chain_jump -> connections
+  connections -> timeout [label="yes"]
+  connections -> reject [label="no"]
+  timeout -> wait [label="no"]
+  wait -> connections
+  timeout -> reject [label="yes"]
+}
