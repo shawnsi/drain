@@ -121,7 +121,7 @@ Usage:
 Options:
   -e --exclude=<host>     Exclude a hostname or ip from the drain
   -t --timeout=<seconds>  If positive, set timeout for monitoring connections [default: 120].
-  -k --kill=<seconds>			Remaining connections rejected after this time elapsed [default: 120].
+  -k --kill=<seconds>     Remaining connections rejected after this time elapsed [default: 120].
   -h --help               Show this screen
   -d --debug              Print debug information
   -v --version            Show version
