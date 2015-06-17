@@ -34,8 +34,9 @@ func Reject(ports []string) error {
 		// Append REJECT for all TCP connections on the port
 		if out, err := iptables.Command(
 			"-A", chain,
-			"-j", "REJECT",
 			"-p", "tcp",
+			"-j", "REJECT",
+			"--reject-with", "tcp-reset",
 			"--dport", port).CombinedOutput(); err != nil {
 			return fmt.Errorf("Failed to add TCP REJECT for port %s!\n%s", port, out)
 		}
@@ -64,8 +65,9 @@ func Start(ports []string, excludes []string) error {
 		if out, err := iptables.Command(
 			"-A", chain,
 			"-m", "state", "--state", "NEW",
-			"-j", "REJECT",
 			"-p", "tcp",
+			"-j", "REJECT",
+			"--reject-with", "tcp-reset",
 			"--dport", port).CombinedOutput(); err != nil {
 			return fmt.Errorf("Failed to add TCP REJECT for NEW connections on port %s!\n%s", port, out)
 		}
