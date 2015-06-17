@@ -1,5 +1,5 @@
 Name:           drain
-Version:        0.0.6
+Version:        0.0.7
 Release:        1%{?dist}
 Summary:        TCP Drain
 
@@ -29,13 +29,16 @@ rm -fr $RPM_BUILD_ROOT/usr/{pkg,src}
 /usr/bin/drain
 
 %changelog
-* Wed Jun 16 2015 Shawn Siefkas <shawn@siefk.as> - 0.0.6-1
+* Wed Jun 17 2015 Shawn Siefkas <shawn@siefk.as> - 0.0.7-1
+- Reject with TCP RST
+
+* Tue Jun 16 2015 Shawn Siefkas <shawn@siefk.as> - 0.0.6-1
 - Reject all connections after reject timeout met
 
-* Wed Jun 16 2015 Shawn Siefkas <shawn@siefk.as> - 0.0.5-1
+* Tue Jun 16 2015 Shawn Siefkas <shawn@siefk.as> - 0.0.5-1
 - Adding kill to start
 
-* Wed Jun 16 2015 Shawn Siefkas <shawn@siefk.as> - 0.0.4-1
+* Tue Jun 16 2015 Shawn Siefkas <shawn@siefk.as> - 0.0.4-1
 - Adding timeout to monitor
 
 * Wed Mar 04 2015 Shawn Siefkas <shawn@siefk.as> - 0.0.3-1
